@@ -106,22 +106,15 @@ d3.json("got_social_graph.json").then(data => {
 
         rows.transition().duration(2500)
             .delay(function(d, i) { return echellexy(i) ; })
-            .attr("transform", function(d,i){
-                console.log("d : " + d)
-                console.log("i : " + i)
-                console.log(echellexy(i))
-                return  "translate(0," + echellexy(i) + ")";
-            })
+            .attr("y", function(d,i){
+                return  echellexy(i) })
         columns.transition().duration(2500)
             .delay(function(d, i) { return echellexy(i) ; })
-            .attr("dy", function(d, i) { return  echellexy(i) })
-        console.log("HELOO")
-        matrixViz.selectAll("rect").transition().duration(2500)
+            .attr("y", function(d, i) { return  echellexy(i) })
+        svg.selectAll("rect").transition().duration(2500)
             .delay(function(d) {
-                console.log(d.x)
                 return echellexy(d.x) * 4 ; })
             .attr("x", function(d) {
-                console.log(d.x)
                 return echellexy(d.x); })
             .attr("y", function (d) { return echellexy(d.y)})
     }
