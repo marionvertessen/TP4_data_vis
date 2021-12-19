@@ -26,8 +26,8 @@ d3.json("got_social_graph.json").then(data => {
 // [0, 1, ..., 106]
 
     var echellexy = d3.scaleBand()
-        .range([0,width]) 
         .domain(positionsPersonnages)
+        .range([0,width])
         .paddingInner(0.1)
         .align(0)
         .round(true);
@@ -84,32 +84,53 @@ d3.json("got_social_graph.json").then(data => {
         .attr("y",function(d){return (d.id+1)*echellexy.bandwidth()})
         .attr("x",-40)
 
-    function update(choix){
-        var old = echellexy;
-        echellexy.domain(choix)
+    var orders = {
+        appearances: d3.range(positionsPersonnages).sort((a, b) => {
+            return d3.ascending(data.nodes[a].id, data.nodes[b].id);
+        }),
+        zone: d3.range(positionsPersonnages).sort((a, b) => {
+            return data.nodes[b].zone - data.nodes[a].zone;
+        }),
+        influences: d3.range(positionsPersonnages).sort((a, b) => {
+            console.log(data.nodes[b])
+            return data.nodes[b].influence - data.nodes[a].influence;
+        })
+    };
 
+    function update(newPosition){
+        console.log(newPosition)
+
+        echellexy.domain(newPosition)
+        console.log(echellexy(0))
+        console.log(echellexy(3))
 
         rows.transition().duration(2500)
-            .delay(function(d, i) { return echellexy(i); })
-            .attr("dy", function(d,i){
-                console.log(d);
-                console.log(i);
-                return  echellexy(i) })
+            .delay(function(d, i) { return echellexy(i) ; })
+            .attr("transform", function(d,i){
+                console.log("d : " + d)
+                console.log("i : " + i)
+                console.log(echellexy(i))
+                return  "translate(0," + echellexy(i) + ")";
+            })
         columns.transition().duration(2500)
-            .delay(function(d, i) { return echellexy(i); })
-            .attr("dy", function(d, i) { return  + echellexy(i)})
-
+            .delay(function(d, i) { return echellexy(i) ; })
+            .attr("dy", function(d, i) { return  echellexy(i) })
+        console.log("HELOO")
         matrixViz.selectAll("rect").transition().duration(2500)
-            .delay(function(d) { return echellexy(d.x) ; })
-            .attr("x", function(d) { return echellexy(d.x); })
+            .delay(function(d) {
+                console.log(d.x)
+                return echellexy(d.x) * 4 ; })
+            .attr("x", function(d) {
+                console.log(d.x)
+                return echellexy(d.x); })
+            .attr("y", function (d) { return echellexy(d.y)})
     }
 
     d3.select("#mySelect").on("change",function(e){
         var val_text = document.getElementById("mySelect").value;
-        var val = [];
-        if(val_text == "influences_val"){update(influences)}
-        if(val_text == "zones_val" ){update(zones)}
-        else(update(appearances))
+        if(val_text === "influences_val"){update(influences)}
+        if(val_text === "zones_val" ){update(zones)}
+        if(val_text === "appearances_val"){update(appearances)}
     })
 })
 
